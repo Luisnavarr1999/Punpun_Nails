@@ -80,6 +80,7 @@ body{
   line-height: 0;
   transform: translateY(1px);
 }
+
 .divider-white-bottom{
   background: var(--white);
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0 55%);
