@@ -17,6 +17,50 @@ document.addEventListener("DOMContentLoaded", () => {
     if (el) el.href = wa;
   });
 
+  // Galería modal
+  const galleryImages = document.querySelectorAll(".gallery-img");
+  const galleryModal = document.getElementById("galleryModal");
+  const galleryModalImage = document.querySelector(".gallery-modal-image");
+  const galleryModalDescription = document.querySelector(".gallery-modal-description");
+  const galleryModalClose = document.querySelector(".gallery-modal-close");
+
+  const openGalleryModal = (img) => {
+    if (!galleryModal || !galleryModalImage || !galleryModalDescription) return;
+    galleryModalImage.src = img.src;
+    galleryModalImage.alt = img.alt;
+    galleryModalDescription.textContent = img.dataset.description || "";
+    galleryModal.classList.add("is-open");
+    galleryModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+  };
+
+  const closeGalleryModal = () => {
+    if (!galleryModal) return;
+    galleryModal.classList.remove("is-open");
+    galleryModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+  };
+
+  galleryImages.forEach((img) => {
+    img.addEventListener("click", () => openGalleryModal(img));
+  });
+
+  if (galleryModal) {
+    galleryModal.addEventListener("click", (event) => {
+      if (event.target === galleryModal) closeGalleryModal();
+    });
+  }
+
+  if (galleryModalClose) {
+    galleryModalClose.addEventListener("click", closeGalleryModal);
+  }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && galleryModal?.classList.contains("is-open")) {
+      closeGalleryModal();
+    }
+  });
+
   // ================= GSAP =================
   if (!(window.gsap && window.ScrollTrigger)) return;
 
