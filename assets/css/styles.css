@@ -6,6 +6,12 @@
   --white: #ffffff;
 
   --divider-h: 120px;
+
+  /* NUEVO: control fino para decoraciones flotantes */
+  --floating-size: 360px;        /* tamaño base */
+  --floating-size-mobile: 260px; /* tamaño en móvil */
+  --floating-lift: 1.15;         /* cuánto “sube” hacia la sección anterior */
+  --floating-gap: 90px;          /* espacio extra arriba del título de la sección siguiente */
 }
 
 *{ box-sizing: border-box; }
@@ -18,9 +24,7 @@ body{
   margin: 0;
 }
 
-section[id]{
-  scroll-margin-top: 90px;
-}
+section[id]{ scroll-margin-top: 90px; }
 
 /* NAV */
 .nav-pink{
@@ -69,13 +73,11 @@ section[id]{
   z-index: 1;
   padding: 96px 0;
 }
-
 .hero-cta .btn{
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
-
 @media (max-width: 575px){
   .hero-content{ padding: 72px 0; }
   .hero{ min-height: 84vh; }
@@ -112,7 +114,6 @@ section[id]{
   background: var(--white);
   clip-path: polygon(0 0, 100% 45%, 100% 100%, 0 100%);
 }
-
 .divider-white-bottom{
   background: var(--white);
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0 55%);
@@ -132,6 +133,72 @@ section[id]{
 @media (max-width: 575px){
   :root{ --divider-h: 85px; }
   .has-divider{ padding-bottom: calc(110px + var(--divider-h)); }
+}
+
+/* =========================================================
+   DECORACIONES FLOTANTES (MEJORADO)
+   - No empujan el layout (height:0)
+   - No tapan los títulos (reserva espacio arriba de la sección siguiente)
+   - Controlables con variables
+   ========================================================= */
+.floating-divider{
+  position: relative;
+  height: 0;              /* no ocupa alto */
+  margin: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* imagen flotante */
+.floating-divider .floating-decor{
+  position: absolute;
+  left: 50%;
+  top: 0;
+
+  /* Sube hacia la sección anterior. Ajustable con --floating-lift */
+  transform: translate(-50%, calc(-100% * var(--floating-lift)));
+
+  width: min(var(--floating-size), 75vw);
+  max-width: 100%;
+  height: auto;
+
+  /* sombra más suave y bonita */
+  filter:
+    drop-shadow(0 18px 28px rgba(0,0,0,.25))
+    drop-shadow(0 6px 10px rgba(0,0,0,.18));
+
+  /* suaviza un poco el pixel art sin “embarrarlo” */
+  image-rendering: auto;
+
+  opacity: 1;
+}
+
+/* BAJAR la imagen entre OFRECEMOS → SERVICIOS */
+.floating-decor--ofrecemos{
+  transform: translate(-50%, -65%) !important;
+}
+
+/* SUBIR la imagen entre SERVICIOS → GALERÍA */
+.floating-decor--galeria{
+  transform: translate(-50%, -70%) !important;
+}
+
+/* Este selector funciona si tu HTML es:
+   </section>
+   <div class="floating-divider">...</div>
+   <section ...>
+   -> Le damos espacio al inicio de la sección siguiente
+*/
+.floating-divider + .section{
+  padding-top: calc(150px + var(--floating-gap));
+}
+@media (max-width: 575px){
+  .floating-divider .floating-decor{
+    width: min(var(--floating-size-mobile), 70vw);
+  }
+  .floating-divider + .section{
+    padding-top: calc(110px + (var(--floating-gap) - 15px));
+  }
 }
 
 /* BACKGROUNDS */
@@ -160,42 +227,49 @@ section[id]{
 }
 
 /* OFRECEMOS */
-.feature{ padding: 18px; }
 .feature{
-  background: #fff;
-  border-radius: 18px;
-  border: 1px solid rgba(0,0,0,.06);
-  box-shadow: 0 16px 35px rgba(0,0,0,.05);
-  transition: transform .2s ease, box-shadow .2s ease;
+  padding: 10px 18px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  transition: transform .2s ease;
 }
-.feature:hover{
-  transform: translateY(-4px);
-  box-shadow: 0 20px 45px rgba(0,0,0,.08);
-}
+.feature:hover{ transform: translateY(-4px); }
 .feature-icon{
-  width: 76px;
-  height: 76px;
+  width: 86px;
+  height: 86px;
   border-radius: 999px;
   display: grid;
   place-items: center;
-  margin: 0 auto;
-  font-size: 28px;
+  margin: 0 auto 18px;
+  font-size: 32px;
+  color: var(--pink);
+  border: 2px solid rgba(233, 75, 138, .18);
+  box-shadow: 0 14px 30px rgba(233, 75, 138, .18);
 }
-.bg-pink-100{ background: var(--pink-100); }
+.feature-icon--soft{ background: #ffe6f1; }
+.feature-icon--accent{ background: #ffd1e2; }
+.feature-icon--light{ background: #fff5fa; }
+.feature h5{
+  margin-bottom: 10px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+}
+.feature p{
+  margin: 0 auto;
+  max-width: 260px;
+  line-height: 1.6;
+}
 .text-pink{ color: var(--pink); }
 
 /* Ajuste fino OFRECEMOS */
 #ofrecemos.has-divider{
   padding-bottom: calc(150px + var(--divider-h));
 }
-
-#ofrecemos{
-  padding-top: 50px;
-}
-
-#contacto{
-  padding-top: 50px;
-}
+#ofrecemos{ padding-top: 50px; }
+#contacto{ padding-top: 50px; }
 
 /* SERVICIOS */
 .img-card{
@@ -228,15 +302,11 @@ section[id]{
   outline: 3px solid rgba(255,255,255,.7);
   outline-offset: 4px;
 }
-
 .gallery-img:hover{
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 14px 35px rgba(0,0,0,.45);
 }
-
-.gallery-item{
-  position: relative;
-}
+.gallery-item{ position: relative; }
 .gallery-item::after{
   content: "";
   position: absolute;
@@ -247,7 +317,6 @@ section[id]{
   transition: opacity .2s ease;
   pointer-events: none;
 }
-
 .gallery-item::before{
   content: "";
   position: absolute;
@@ -258,7 +327,6 @@ section[id]{
   transition: opacity .2s ease;
   z-index: -1;
 }
-
 .gallery-label{
   position: absolute;
   left: 14px;
@@ -274,16 +342,9 @@ section[id]{
   pointer-events: none;
 }
 .gallery-item:hover::after,
-.gallery-item:hover .gallery-label{
-  opacity: 1;
-}
-.gallery-item:hover .gallery-label{
-  transform: translateY(0);
-}
-
-.gallery-item:hover::before{
-  opacity: 1;
-}
+.gallery-item:hover .gallery-label{ opacity: 1; }
+.gallery-item:hover .gallery-label{ transform: translateY(0); }
+.gallery-item:hover::before{ opacity: 1; }
 
 .gallery-modal{
   position: fixed;
@@ -299,24 +360,20 @@ section[id]{
   transition: opacity .2s ease, visibility .2s ease;
   z-index: 2000;
 }
-
 .gallery-modal-content{
   transform: translateY(12px) scale(.98);
   opacity: 0;
   transition: transform .25s ease, opacity .25s ease;
 }
-
 .gallery-modal.is-open{
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
 }
-
 .gallery-modal.is-open .gallery-modal-content{
   transform: translateY(0) scale(1);
   opacity: 1;
 }
-
 .gallery-modal-content{
   position: relative;
   max-width: min(900px, 92vw);
@@ -362,9 +419,7 @@ section[id]{
   background: rgba(255,255,255,.3);
   transform: rotate(6deg);
 }
-body.modal-open{
-  overflow: hidden;
-}
+body.modal-open{ overflow: hidden; }
 
 /* CONTACTO */
 .contact-box{
@@ -388,7 +443,6 @@ body.modal-open{
   transform: translateY(-2px);
   box-shadow: 0 14px 28px rgba(212, 60, 124, .4);
 }
-
 .btn-outline-light:hover,
 .btn-outline-light:focus-visible{
   color: var(--pink);
@@ -429,8 +483,8 @@ body.modal-open{
   position: fixed;
   right: 18px;
   bottom: 18px;
-  width: 64px;
-  height: 64px;
+  width: 120px;
+  height: 120px;
   border-radius: 999px;
   display: grid;
   place-items: center;
@@ -445,14 +499,8 @@ body.modal-open{
   animation: wa-float-move 3.4s ease-in-out infinite;
   filter: drop-shadow(0 12px 22px rgba(0,0,0,.35));
 }
-.wa-float:hover{
-  transform: scale(1.05);
-}
+.wa-float:hover{ transform: scale(1.05); }
 @keyframes wa-float-move{
-  0%, 100%{
-    transform: translateY(0);
-  }
-  50%{
-    transform: translateY(-6px);
-  }
+  0%, 100%{ transform: translateY(0); }
+  50%{ transform: translateY(-6px); }
 }

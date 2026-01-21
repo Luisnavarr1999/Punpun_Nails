@@ -165,6 +165,22 @@ document.addEventListener("DOMContentLoaded", () => {
     ease: "power2.out",
   });
 
+
+  // Decoraciones flotantes entre secciones
+  gsap.utils.toArray(".floating-decor").forEach((decor) => {
+    gsap.from(decor, {
+      scrollTrigger: {
+        trigger: decor,
+        start: "top 85%",
+        once: true,
+      },
+      opacity: 0,
+      y: 24,
+      duration: 0.7,
+      ease: "power2.out",
+    });
+  });
+
   // ================= CONTACTO (timeline único) =================
   const contactTl = gsap.timeline({ paused: true });
 
