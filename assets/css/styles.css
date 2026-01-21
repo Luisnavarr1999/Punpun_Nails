@@ -18,9 +18,23 @@ body{
   margin: 0;
 }
 
+section[id]{
+  scroll-margin-top: 90px;
+}
+
 /* NAV */
 .nav-pink{
   background: linear-gradient(90deg, var(--pink), var(--pink-2));
+}
+.navbar .nav-link{
+  color: rgba(255,255,255,.85);
+  font-weight: 500;
+  transition: color .2s ease, opacity .2s ease;
+}
+.navbar .nav-link:hover,
+.navbar .nav-link:focus-visible{
+  color: #fff;
+  opacity: 1;
 }
 
 /* Navbar sticky (evita hueco) */
@@ -87,6 +101,11 @@ body{
   transform: translateY(1px);
 }
 
+.divider-white{
+  background: var(--white);
+  clip-path: polygon(0 0, 100% 45%, 100% 100%, 0 100%);
+}
+
 .divider-white-bottom{
   background: var(--white);
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0 55%);
@@ -135,6 +154,17 @@ body{
 
 /* OFRECEMOS */
 .feature{ padding: 18px; }
+.feature{
+  background: #fff;
+  border-radius: 18px;
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 16px 35px rgba(0,0,0,.05);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.feature:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 20px 45px rgba(0,0,0,.08);
+}
 .feature-icon{
   width: 76px;
   height: 76px;
@@ -158,6 +188,7 @@ body{
   overflow: hidden;
   box-shadow: 0 14px 40px rgba(0,0,0,.25);
   background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.15);
 }
 .img-card img{
   width: 100%;
@@ -178,6 +209,11 @@ body{
   cursor: pointer;
   transition: transform .2s ease, box-shadow .2s ease;
 }
+.gallery-img:focus-visible{
+  outline: 3px solid rgba(255,255,255,.7);
+  outline-offset: 4px;
+}
+
 .gallery-img:hover{
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 14px 35px rgba(0,0,0,.45);
@@ -337,6 +373,19 @@ body.modal-open{
   transform: translateY(-2px);
   box-shadow: 0 14px 28px rgba(212, 60, 124, .4);
 }
+
+.btn-outline-light:hover,
+.btn-outline-light:focus-visible{
+  color: var(--pink);
+  background: #fff;
+  border-color: #fff;
+  box-shadow: 0 10px 22px rgba(255,255,255,.3);
+}
+.btn:focus-visible{
+  outline: 3px solid rgba(233, 75, 138, .5);
+  outline-offset: 3px;
+}
+
 .map-box{
   height: 100%;
   border-radius: 18px;

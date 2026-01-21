@@ -51,6 +51,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   galleryImages.forEach((img) => {
     img.addEventListener("click", () => openGalleryModal(img));
+    img.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openGalleryModal(img);
+      }
+    });
   });
 
   if (galleryModal) {
