@@ -75,6 +75,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  const galleryExtra = document.getElementById("galleryExtra");
+  const galleryToggle = document.getElementById("galleryToggle");
+
+  if (galleryExtra && galleryToggle) {
+    const updateGalleryToggle = (isOpen) => {
+      galleryExtra.classList.toggle("is-open", isOpen);
+      galleryExtra.setAttribute("aria-hidden", String(!isOpen));
+      galleryToggle.setAttribute("aria-expanded", String(isOpen));
+      galleryToggle.textContent = isOpen ? "Mostrar menos" : "Mostrar más";
+    };
+
+    galleryToggle.addEventListener("click", () => {
+      const isOpen = galleryExtra.classList.contains("is-open");
+      updateGalleryToggle(!isOpen);
+
+      if (!isOpen) {
+        const firstExtraImage = galleryExtra.querySelector(".gallery-img");
+        firstExtraImage?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  }
+
   // Sparkles en tarjetas de servicios
   const serviceCards = document.querySelectorAll(".service-card");
   const sparkleSrc = "assets/img/sparkle.gif";
