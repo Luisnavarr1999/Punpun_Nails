@@ -41,6 +41,20 @@ section[id]{ scroll-margin-top: 90px; }
   opacity: 1;
 }
 
+.navbar-logo{
+  height: 70px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+  object-position: left center;
+}
+
+@media (max-width: 575px){
+  .navbar-logo{
+    height: 44px; /* antes 36px */
+  }
+}
+
 /* Navbar sticky (evita hueco) */
 .navbar.fixed-top{
   position: sticky;
@@ -279,6 +293,19 @@ section[id]{ scroll-margin-top: 90px; }
   background: rgba(255,255,255,.08);
   border: 1px solid rgba(255,255,255,.15);
 }
+
+.service-card{
+  position: relative;
+  overflow: hidden;
+}
+.service-sparkle{
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: screen;
+  will-change: transform, opacity;
+}
+
 .img-card img{
   width: 100%;
   height: 360px;
@@ -492,6 +519,16 @@ body.modal-open{ overflow: hidden; }
   text-decoration: none;
   transition: transform .2s ease;
 }
+
+.wa-float--instagram{
+  right: 152px;
+}
+@media (max-width: 575px){
+  .wa-float--instagram{
+    right: 142px;
+  }
+}
+
 .wa-float__img{
   width: 100%;
   height: 100%;

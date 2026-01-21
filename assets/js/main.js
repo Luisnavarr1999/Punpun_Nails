@@ -75,6 +75,81 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Sparkles en tarjetas de servicios
+  const serviceCards = document.querySelectorAll(".service-card");
+  const sparkleSrc = "assets/img/sparkle.gif";
+  const randomBetween = (min, max) => min + Math.random() * (max - min);
+  const spawnSparkles = (card) => {
+    const { width, height } = card.getBoundingClientRect();
+    const sparkleCount = Math.floor(randomBetween(3, 6));
+
+    for (let i = 0; i < sparkleCount; i += 1) {
+      const sparkle = document.createElement("img");
+      const size = randomBetween(28, 48);
+      const x = randomBetween(0, Math.max(0, width - size));
+      const y = randomBetween(0, Math.max(0, height - size));
+      const rotation = randomBetween(-20, 20);
+      const duration = randomBetween(2.5, 3.5);
+
+      sparkle.src = sparkleSrc;
+      sparkle.alt = "";
+      sparkle.className = "service-sparkle";
+      sparkle.style.width = `${size}px`;
+      sparkle.style.height = `${size}px`;
+      sparkle.style.left = `${x}px`;
+      sparkle.style.top = `${y}px`;
+
+      card.appendChild(sparkle);
+
+      if (window.gsap) {
+        gsap
+          .timeline({
+            onComplete: () => sparkle.remove(),
+          })
+          .fromTo(
+            sparkle,
+            {
+              opacity: 0,
+              scale: 0.4,
+              y: 10,
+              rotation,
+            },
+            {
+              opacity: 1,
+              duration: 0.15,
+              ease: "power1.out",
+            }
+          )
+          .to(sparkle, {
+            opacity: 0,
+            scale: 1,
+            y: -20,
+            rotation: rotation + randomBetween(-10, 10),
+            duration,
+            ease: "power2.out",
+          });
+      } else {
+        const animation = sparkle.animate(
+          [
+            { opacity: 0, transform: `translateY(10px) scale(0.4) rotate(${rotation}deg)` },
+            { opacity: 1, transform: `translateY(0px) scale(0.7) rotate(${rotation}deg)` },
+            { opacity: 0, transform: `translateY(-20px) scale(1) rotate(${rotation + 8}deg)` },
+          ],
+          {
+            duration: duration * 1000,
+            easing: "ease-out",
+            fill: "forwards",
+          }
+        );
+        animation.addEventListener("finish", () => sparkle.remove());
+      }
+    }
+  };
+
+  serviceCards.forEach((card) => {
+    card.addEventListener("mouseenter", () => spawnSparkles(card));
+  });
+
   // ================= GSAP =================
   if (!(window.gsap && window.ScrollTrigger)) return;
 
