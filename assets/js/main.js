@@ -12,10 +12,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // WhatsApp links
   const wa = buildWhatsAppLink();
-  ["btnWhatsappTop", "btnWhatsappBottom"].forEach((id) => {
+  ["btnWhatsappTop", "btnWhatsappBottom", "btnWhatsappFloat"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.href = wa;
   });
+
+  const navbar = document.querySelector(".navbar");
+  const toggleNavbar = () => {
+    if (!navbar) return;
+    navbar.classList.toggle("scrolled", window.scrollY > 10);
+  };
+  toggleNavbar();
+  window.addEventListener("scroll", toggleNavbar, { passive: true });
 
   // Galería modal
   const galleryImages = document.querySelectorAll(".gallery-img");

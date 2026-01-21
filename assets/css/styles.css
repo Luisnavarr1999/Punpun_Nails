@@ -28,6 +28,12 @@ body{
   position: sticky;
   top: 0;
   z-index: 1030;
+  transition: background-color .2s ease, box-shadow .2s ease, backdrop-filter .2s ease;
+}
+.navbar.scrolled{
+  background: rgba(233, 75, 138, 0.92);
+  box-shadow: 0 10px 24px rgba(0,0,0,.18);
+  backdrop-filter: blur(10px);
 }
 
 /* HERO */
@@ -42,7 +48,7 @@ body{
 .hero-overlay{
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,.45);
+  background: linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.35) 55%, rgba(0,0,0,.65) 100%);
 }
 .hero-content{
   position: relative;
@@ -170,10 +176,10 @@ body{
   object-fit: cover;
   border-radius: 16px;
   cursor: pointer;
-  transition: transform .15s ease, box-shadow .15s ease;
+  transition: transform .2s ease, box-shadow .2s ease;
 }
 .gallery-img:hover{
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.02);
   box-shadow: 0 14px 35px rgba(0,0,0,.45);
 }
 
@@ -185,11 +191,23 @@ body{
   position: absolute;
   inset: 0;
   border-radius: 16px;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.55) 100%);
+  background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.65) 100%);
   opacity: 0;
   transition: opacity .2s ease;
   pointer-events: none;
 }
+
+.gallery-item::before{
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255,255,255,.45), rgba(233,75,138,.65));
+  opacity: 0;
+  transition: opacity .2s ease;
+  z-index: -1;
+}
+
 .gallery-label{
   position: absolute;
   left: 14px;
@@ -212,6 +230,10 @@ body{
   transform: translateY(0);
 }
 
+.gallery-item:hover::before{
+  opacity: 1;
+}
+
 .gallery-modal{
   position: fixed;
   inset: 0;
@@ -226,11 +248,24 @@ body{
   transition: opacity .2s ease, visibility .2s ease;
   z-index: 2000;
 }
+
+.gallery-modal-content{
+  transform: translateY(12px) scale(.98);
+  opacity: 0;
+  transition: transform .25s ease, opacity .25s ease;
+}
+
 .gallery-modal.is-open{
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
 }
+
+.gallery-modal.is-open .gallery-modal-content{
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
 .gallery-modal-content{
   position: relative;
   max-width: min(900px, 92vw);
@@ -270,9 +305,11 @@ body{
   place-items: center;
   cursor: pointer;
   backdrop-filter: blur(6px);
+  transition: transform .2s ease, background .2s ease;
 }
 .gallery-modal-close:hover{
   background: rgba(255,255,255,.3);
+  transform: rotate(6deg);
 }
 body.modal-open{
   overflow: hidden;
@@ -290,11 +327,15 @@ body.modal-open{
   background: var(--pink);
   border-color: var(--pink);
   color: white;
+  box-shadow: 0 10px 18px rgba(233, 75, 138, .35);
+  transition: transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
 }
 .btn-pink:hover{
   background: #d43c7c;
   border-color: #d43c7c;
   color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(212, 60, 124, .4);
 }
 .map-box{
   height: 100%;
@@ -335,4 +376,20 @@ body.modal-open{
   box-shadow: 0 12px 30px rgba(0,0,0,.35);
   z-index: 999;
   text-decoration: none;
+  animation: wa-pulse 3.2s ease-in-out infinite;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.wa-float:hover{
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 16px 38px rgba(0,0,0,.4);
+}
+@keyframes wa-pulse{
+  0%, 100%{
+    transform: translateY(0) scale(1);
+    box-shadow: 0 12px 30px rgba(0,0,0,.35);
+  }
+  50%{
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 16px 36px rgba(0,0,0,.38);
+  }
 }
