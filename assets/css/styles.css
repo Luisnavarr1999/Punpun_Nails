@@ -694,3 +694,60 @@ body.modal-open{ overflow: hidden; }
 .services-more-btn:focus-visible::after{
   transform: scaleX(1);
 }
+
+/* ================================
+   CONTACTO - TELÉFONOS DECORATIVOS
+   (asoman desde abajo SIN crear espacio)
+   ================================ */
+
+#contacto{
+  position: relative;
+  overflow: hidden;          /* ✅ CLAVE: evita que se salga y cree scroll */
+  padding-bottom: 160px;     /* ✅ espacio para que se vean “asomando” */
+}
+
+/* Teléfonos flotando dentro de contacto, pegados abajo */
+.contact-phones{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;                /* ✅ sin negativo */
+  pointer-events: none;
+  z-index: 1;
+}
+
+.contact-phone{
+  position: absolute;
+  bottom: 0;
+
+  width: 320px;
+  height: auto;
+
+  /* ✅ esto “los baja” visualmente SIN agrandar la página */
+  transform: translateY(15%);
+
+  filter: drop-shadow(0 18px 30px rgba(0,0,0,.18));
+}
+
+.contact-phone--left{ left: 15%; }
+.contact-phone--right{ right: 15%; }
+
+/* Para que el texto/botón quede por encima */
+#contacto .container{
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 575px){
+  .contact-phones{ display: block; }
+  #contacto{ padding-bottom: 140px; }
+
+  .contact-phone{
+    width: 160px;              /* más chico */
+    transform: translateY(15%);/* asoma poquito */
+    opacity: .85;              /* opcional */
+  }
+
+  .contact-phone--left{ left: -20px; }   /* medio fuera */
+  .contact-phone--right{ right: -20px; } /* medio fuera */
+}

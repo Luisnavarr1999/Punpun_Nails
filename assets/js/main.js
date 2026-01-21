@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ✅ Títulos (todas las secciones, PERO excluye Contacto)
   gsap.utils.toArray(".section-title").forEach((title) => {
-    if (title.closest("#contacto")) return; // <-- clave para que no choque
+    if (title.closest("#contacto")) return;
 
     gsap.from(title, {
       scrollTrigger: {
@@ -262,7 +262,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ease: "power2.out",
   });
 
-
   // Decoraciones flotantes entre secciones
   gsap.utils.toArray(".floating-decor").forEach((decor) => {
     gsap.from(decor, {
@@ -280,6 +279,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ================= CONTACTO (timeline único) =================
   const contactTl = gsap.timeline({ paused: true });
+
+  // Si existen teléfonos, los animamos también
+  const hasPhones = document.querySelector(".contact-phones");
 
   contactTl
     .from("#contacto .section-title", {
@@ -321,9 +323,35 @@ document.addEventListener("DOMContentLoaded", () => {
       "-=0.15"
     );
 
+  if (hasPhones) {
+    contactTl
+      .from(
+        ".contact-phone--left",
+        {
+          opacity: 0,
+          y: 60,
+          x: -20,
+          duration: 0.8,
+          ease: "power2.out",
+        },
+        "-=0.25"
+      )
+      .from(
+        ".contact-phone--right",
+        {
+          opacity: 0,
+          y: 60,
+          x: 20,
+          duration: 0.8,
+          ease: "power2.out",
+        },
+        "-=0.75"
+      );
+  }
+
   ScrollTrigger.create({
     trigger: "#contacto",
-    start: "top 80%", // si quieres que se note más, cambia a "top 95%"
+    start: "top 80%",
     once: true,
     onEnter: () => contactTl.play(0),
   });
@@ -331,3 +359,4 @@ document.addEventListener("DOMContentLoaded", () => {
   // Para que ScrollTrigger calcule bien cuando cargan imágenes
   window.addEventListener("load", () => ScrollTrigger.refresh());
 });
+
