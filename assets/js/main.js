@@ -1,4 +1,4 @@
-const WHATSAPP_NUMBER = "56912345678";
+const WHATSAPP_NUMBER = "56931250501";
 
 function buildWhatsAppLink() {
   const msg = encodeURIComponent("Hola! Quiero reservar una hora para uñas 💅");
