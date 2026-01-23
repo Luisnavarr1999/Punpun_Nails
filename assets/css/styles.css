@@ -237,6 +237,7 @@ section[id]{ scroll-margin-top: 90px; }
 .section-title{
   letter-spacing: .18em;
   font-weight: 700;
+  font-size: 2.8rem;
 }
 .section-line{
   width: 120px;
@@ -278,12 +279,13 @@ section[id]{ scroll-margin-top: 90px; }
   font-weight: 600;
   letter-spacing: .12em;
   text-transform: uppercase;
-  font-size: 0.95rem;
+  font-size: 1.2rem;
 }
 .feature p{
   margin: 0 auto;
   max-width: 260px;
   line-height: 1.6;
+  font-size: 1.05rem;
 }
 .text-pink{ color: var(--pink); }
 
@@ -298,14 +300,19 @@ section[id]{ scroll-margin-top: 90px; }
 .img-card{
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 14px 40px rgba(0,0,0,.25);
+  box-shadow: 0 18px 45px rgba(0,0,0,.3), inset 0 0 0 1px rgba(255,255,255,.1);
   background: rgba(255,255,255,.08);
   border: 1px solid rgba(255,255,255,.15);
-
-  /* NUEVO: centra la imagen aunque uses scale() */
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform .3s ease, box-shadow .3s ease;
+  max-width: 320px;
+  margin: 0 auto;
+}
+.img-card:hover{
+  transform: translateY(-4px);
+  box-shadow: 0 22px 50px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.15);
 }
 
 .service-card{
@@ -326,18 +333,47 @@ section[id]{ scroll-margin-top: 90px; }
 
 .img-card img{
   width: 100%;
-  height: 260px;
+  height: 240px;
   object-fit: contain;
   display: block;
-
-  transform: scale(1.80);
+  transform: scale(1.95) translateY(15px);
   transform-origin: center center;
+  transition: transform .3s ease;
+}
+.img-card:hover img{
+  transform: scale(2.05) translateY(15px);
+}
+
+/* Subir logo de Manicure */
+.service-row:first-of-type .img-card img{
+  transform: scale(1.95) translateY(5px);
+}
+.service-row:first-of-type .img-card:hover img{
+  transform: scale(2.05) translateY(5px);
 }
 
 @media (max-width: 575px){
   .img-card img{
-    height: 170px;
-    transform: scale(1.4);
+    height: 160px;
+    transform: scale(1.35) translateY(10px);
+  }
+  .img-card:hover img{
+    transform: scale(1.42) translateY(10px);
+  }
+  .service-row{
+    text-align: center;
+  }
+  .service-row .col-lg-5{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    order: 1 !important;
+  }
+  .service-row .col-lg-7{
+    order: 2 !important;
+  }
+  .bg-pink .btn-white{
+    display: inline-block;
   }
 }
 
@@ -383,7 +419,7 @@ section[id]{ scroll-margin-top: 90px; }
   right: 14px;
   bottom: 12px;
   color: #fff;
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   font-weight: 600;
   letter-spacing: 0.02em;
   opacity: 0;
@@ -504,7 +540,7 @@ section[id]{ scroll-margin-top: 90px; }
   background: rgba(255,255,255,.12);
   color: #fff;
   border-radius: 12px;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
   line-height: 1.5;
   backdrop-filter: blur(8px);
 }
@@ -551,6 +587,20 @@ body.modal-open{ overflow: hidden; }
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 14px 28px rgba(212, 60, 124, .4);
+}
+.bg-pink .btn-white{
+  background: #fff;
+  border-color: #fff;
+  color: var(--pink);
+  box-shadow: 0 10px 18px rgba(255, 255, 255, .35);
+  font-weight: 600;
+}
+.bg-pink .btn-white:hover{
+  background: rgba(255, 255, 255, .95);
+  border-color: #fff;
+  color: var(--pink);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(255, 255, 255, .4);
 }
 .btn-outline-light:hover,
 .btn-outline-light:focus-visible{
@@ -668,7 +718,7 @@ body.modal-open{ overflow: hidden; }
 .services-more-btn{
   color: #fff;
   font-weight: 600;
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   letter-spacing: 0.05em;
   text-decoration: none;
   padding: 12px 26px;
@@ -682,7 +732,7 @@ body.modal-open{ overflow: hidden; }
   bottom: 6px;
   width: 100%;
   height: 2px;
-  background: var(--pink);
+  background: #fff;
   transform: scaleX(0);
   transform-origin: left;
   transition: transform .25s ease;
