@@ -3,6 +3,7 @@ document.getElementById('year').textContent = new Date().getFullYear();
 
 const SUPABASE_URL = window.SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || '';
+const API_BASE = '/.netlify/functions';
 
 function getSupabaseHeaders() {
   return {
@@ -12,23 +13,49 @@ function getSupabaseHeaders() {
   };
 }
 
+async function fetchFromNetlify() {
+  const response = await fetch(`${API_BASE}/products-list`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(errorBody || 'Error al cargar productos desde Netlify');
+  }
+
+  return response.json();
+}
+
+async function fetchFromSupabase() {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/products?select=*`, {
+    method: 'GET',
+    headers: getSupabaseHeaders()
+  });
+
+  if (!response.ok) {
+    throw new Error('Error al cargar productos desde Supabase');
+  }
+
+  return response.json();
+}
+
 async function fetchCatalogProducts() {
+  try {
+    return await fetchFromNetlify();
+  } catch (error) {
+    console.warn('No se pudo cargar desde Netlify Functions, intentando Supabase...', error);
+  }
+
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     console.warn('Supabase no está configurado. Define SUPABASE_URL y SUPABASE_ANON_KEY en el frontend.');
     return [];
   }
 
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/products?select=*`, {
-      method: 'GET',
-      headers: getSupabaseHeaders()
-    });
-
-    if (!response.ok) {
-      throw new Error('Error al cargar productos desde Supabase');
-    }
-
-    return await response.json();
+    return await fetchFromSupabase();
   } catch (error) {
     console.error(error);
     return [];
