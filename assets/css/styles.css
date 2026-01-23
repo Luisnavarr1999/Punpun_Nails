@@ -12,6 +12,7 @@
   --floating-size-mobile: 260px; /* tamaño en móvil */
   --floating-lift: 1.15;         /* cuánto “sube” hacia la sección anterior */
   --floating-gap: 90px;          /* espacio extra arriba del título de la sección siguiente */
+  --announcement-bar-height: 0px;
 }
 
 *{ box-sizing: border-box; }
@@ -41,9 +42,11 @@ body{
   letter-spacing: 0.2px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  position: relative;
-  inset: auto;
-  z-index: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1045;
 }
 
 .announcement-bar__inner{
@@ -92,7 +95,11 @@ body{
 }
 
 
-section[id]{ scroll-margin-top: 90px; }
+section[id]{ scroll-margin-top: calc(90px + var(--announcement-bar-height)); }
+
+.navbar.fixed-top{
+  top: var(--announcement-bar-height);
+}
 
 /* NAV */
 .nav-pink{

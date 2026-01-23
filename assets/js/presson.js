@@ -10,6 +10,11 @@ function loadAnnouncementBar() {
   const bar = document.getElementById('announcementBar');
   const track = document.getElementById('announcementTrack');
   if (!bar || !track) return;
+  const root = document.documentElement;
+  const setAnnouncementOffset = () => {
+    const height = bar.hidden ? 0 : bar.offsetHeight;
+    root.style.setProperty('--announcement-bar-height', `${height}px`);
+  };
 
   let settings;
   try {
@@ -23,15 +28,16 @@ function loadAnnouncementBar() {
 
   if (!isActive || !text) {
     bar.hidden = true;
+    document.body.classList.remove('has-announcement-bar');
+    setAnnouncementOffset();
     return;
   }
 
   const speedValue = Number(settings.speed);
   const duration = Number.isFinite(speedValue) && speedValue > 0 ? speedValue : 18;
   bar.style.setProperty('--ticker-duration', `${duration}s`);
-  bar.style.setProperty('position', 'relative');
-  bar.style.setProperty('inset', 'auto');
   bar.hidden = false;
+  document.body.classList.add('has-announcement-bar');
 
   const link = typeof settings.link === 'string' ? settings.link.trim() : '';
   track.innerHTML = '';
@@ -51,6 +57,8 @@ function loadAnnouncementBar() {
 
   track.appendChild(buildItem(false));
   track.appendChild(buildItem(true));
+  setAnnouncementOffset();
+  window.addEventListener('resize', setAnnouncementOffset);
 }
 
 loadAnnouncementBar();
