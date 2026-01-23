@@ -32,6 +32,63 @@ body{
   -webkit-overflow-scrolling: touch;
 }
 
+/* ANNOUNCEMENT BAR */
+.announcement-bar{
+  background: linear-gradient(90deg, var(--pink), var(--pink-2));
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.2px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.announcement-bar__inner{
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  overflow: hidden;
+}
+
+.announcement-bar__track{
+  display: inline-flex;
+  align-items: center;
+  gap: 48px;
+  white-space: nowrap;
+  animation: announcementTicker var(--ticker-duration, 18s) linear infinite;
+  will-change: transform;
+}
+
+.announcement-bar__text,
+.announcement-bar__link{
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+}
+
+.announcement-bar__link:hover,
+.announcement-bar__link:focus-visible{
+  color: #fff;
+  text-decoration: underline;
+}
+
+@keyframes announcementTicker{
+  from{ transform: translateX(0); }
+  to{ transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .announcement-bar__track{
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+
 section[id]{ scroll-margin-top: 90px; }
 
 /* NAV */

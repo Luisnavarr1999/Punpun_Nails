@@ -1,9 +1,57 @@
 // Actualizar año en footer
 document.getElementById('year').textContent = new Date().getFullYear();
 
+const ANNOUNCEMENT_STORAGE_KEY = 'announcementSettings';
 const SUPABASE_URL = window.SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || '';
 const API_BASE = '/.netlify/functions';
+
+function loadAnnouncementBar() {
+  const bar = document.getElementById('announcementBar');
+  const track = document.getElementById('announcementTrack');
+  if (!bar || !track) return;
+
+  let settings;
+  try {
+    settings = JSON.parse(localStorage.getItem(ANNOUNCEMENT_STORAGE_KEY) || '{}');
+  } catch (error) {
+    settings = {};
+  }
+
+  const text = typeof settings.text === 'string' ? settings.text.trim() : '';
+  const isActive = settings.active === true;
+
+  if (!isActive || !text) {
+    bar.hidden = true;
+    return;
+  }
+
+  const speedValue = Number(settings.speed);
+  const duration = Number.isFinite(speedValue) && speedValue > 0 ? speedValue : 18;
+  bar.style.setProperty('--ticker-duration', `${duration}s`);
+  bar.hidden = false;
+
+  const link = typeof settings.link === 'string' ? settings.link.trim() : '';
+  track.innerHTML = '';
+
+  const buildItem = (isClone = false) => {
+    const element = link ? document.createElement('a') : document.createElement('span');
+    element.className = link ? 'announcement-bar__link' : 'announcement-bar__text';
+    element.textContent = text;
+    if (link) {
+      element.href = link;
+    }
+    if (isClone) {
+      element.setAttribute('aria-hidden', 'true');
+    }
+    return element;
+  };
+
+  track.appendChild(buildItem(false));
+  track.appendChild(buildItem(true));
+}
+
+loadAnnouncementBar();
 
 function getSupabaseHeaders() {
   return {

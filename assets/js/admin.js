@@ -149,6 +149,51 @@ function switchTab(tabName) {
   }
 }
 
+// ==================== ANNOUNCEMENT BAR ====================
+function loadAnnouncementSettings() {
+  const activeInput = document.getElementById('announcementActive');
+  const textInput = document.getElementById('announcementText');
+  const speedInput = document.getElementById('announcementSpeed');
+  const linkInput = document.getElementById('announcementLink');
+
+  if (!activeInput || !textInput || !speedInput || !linkInput) return;
+
+  let settings;
+  try {
+    settings = JSON.parse(localStorage.getItem(ANNOUNCEMENT_STORAGE_KEY) || '{}');
+  } catch (error) {
+    settings = {};
+  }
+
+  activeInput.value = settings.active === false ? 'false' : 'true';
+  textInput.value = typeof settings.text === 'string' ? settings.text : '';
+  speedInput.value = settings.speed ? settings.speed : '';
+  linkInput.value = typeof settings.link === 'string' ? settings.link : '';
+}
+
+function saveAnnouncementSettings(event) {
+  event.preventDefault();
+
+  const activeInput = document.getElementById('announcementActive');
+  const textInput = document.getElementById('announcementText');
+  const speedInput = document.getElementById('announcementSpeed');
+  const linkInput = document.getElementById('announcementLink');
+
+  if (!activeInput || !textInput || !speedInput || !linkInput) return;
+
+  const speedValue = speedInput.value ? Number(speedInput.value) : '';
+  const settings = {
+    active: activeInput.value === 'true',
+    text: textInput.value.trim(),
+    speed: Number.isFinite(speedValue) && speedValue > 0 ? speedValue : '',
+    link: linkInput.value.trim()
+  };
+
+  localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, JSON.stringify(settings));
+  showNotification('✅ News Ticker actualizado correctamente');
+}
+
+
 
 // ==================== PRODUCTOS ====================
 async function loadProducts() {
