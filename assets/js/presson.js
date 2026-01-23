@@ -29,6 +29,8 @@ function loadAnnouncementBar() {
   const speedValue = Number(settings.speed);
   const duration = Number.isFinite(speedValue) && speedValue > 0 ? speedValue : 18;
   bar.style.setProperty('--ticker-duration', `${duration}s`);
+  bar.style.setProperty('position', 'relative');
+  bar.style.setProperty('inset', 'auto');
   bar.hidden = false;
 
   const link = typeof settings.link === 'string' ? settings.link.trim() : '';
