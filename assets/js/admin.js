@@ -1,5 +1,7 @@
 const API_BASE = '/.netlify/functions';
 const ANNOUNCEMENT_STORAGE_KEY = 'announcementSettings';
+const ANNOUNCEMENT_API_GET = `${API_BASE}/announcement-get`;
+const ANNOUNCEMENT_API_UPDATE = `${API_BASE}/announcement-update`;
 let editingProductId = null;
 
 // ==================== INICIALIZACIÓN ====================
@@ -74,6 +76,19 @@ function setupEventListeners() {
   if (announcementForm) {
     announcementForm.addEventListener('submit', saveAnnouncementSettings);
   }
+
+  const announcementInputs = [
+    document.getElementById('announcementActive'),
+    document.getElementById('announcementText'),
+    document.getElementById('announcementSpeed'),
+    document.getElementById('announcementLink')
+  ];
+  announcementInputs.forEach(input => {
+    if (input) {
+      input.addEventListener('input', updateAnnouncementPreviewFromForm);
+      input.addEventListener('change', updateAnnouncementPreviewFromForm);
+    }
+  });
 
   // Editar producto
   const editForm = document.getElementById('editProductForm');
@@ -166,6 +181,38 @@ function loadAnnouncementSettings() {
 
   if (!activeInput || !textInput || !speedInput || !linkInput) return;
 
+  fetchAnnouncementSettings()
+    .then(settings => {
+      if (!settings) return;
+      activeInput.value = settings.active === false ? 'false' : 'true';
+      textInput.value = typeof settings.text === 'string' ? settings.text : '';
+      speedInput.value = settings.speed ? settings.speed : '';
+      linkInput.value = typeof settings.link === 'string' ? settings.link : '';
+      updateAnnouncementPreviewFromForm();
+    })
+    .catch(() => {
+      updateAnnouncementPreviewFromForm();
+    });
+}
+
+async function fetchAnnouncementSettings() {
+  try {
+    const response = await fetch(ANNOUNCEMENT_API_GET, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data && typeof data === 'object' && Object.keys(data).length) {
+        localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, JSON.stringify(data));
+        return data;
+      }
+    }
+  } catch (error) {
+    console.warn('No se pudo cargar el News Ticker desde la API.', error);
+  }
+
   let settings;
   try {
     settings = JSON.parse(localStorage.getItem(ANNOUNCEMENT_STORAGE_KEY) || '{}');
@@ -173,14 +220,10 @@ function loadAnnouncementSettings() {
     settings = {};
   }
 
-  activeInput.value = settings.active === false ? 'false' : 'true';
-  textInput.value = typeof settings.text === 'string' ? settings.text : '';
-  speedInput.value = settings.speed ? settings.speed : '';
-  linkInput.value = typeof settings.link === 'string' ? settings.link : '';
+  return settings;
 }
 
-function saveAnnouncementSettings(event) {
-  event.preventDefault();
+function getAnnouncementFormSettings() {
 
   const activeInput = document.getElementById('announcementActive');
   const textInput = document.getElementById('announcementText');
@@ -190,15 +233,93 @@ function saveAnnouncementSettings(event) {
   if (!activeInput || !textInput || !speedInput || !linkInput) return;
 
   const speedValue = speedInput.value ? Number(speedInput.value) : '';
-  const settings = {
+
+  return {
     active: activeInput.value === 'true',
     text: textInput.value.trim(),
     speed: Number.isFinite(speedValue) && speedValue > 0 ? speedValue : '',
     link: linkInput.value.trim()
   };
+}
 
-  localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, JSON.stringify(settings));
-  showNotification('✅ News Ticker actualizado correctamente');
+function updateAnnouncementPreviewFromForm() {
+  const settings = getAnnouncementFormSettings();
+  if (!settings) return;
+  renderAnnouncementPreview(settings);
+}
+
+function renderAnnouncementPreview(settings) {
+  const previewBar = document.getElementById('announcementPreview');
+  const previewTrack = document.getElementById('announcementPreviewTrack');
+  const previewStatus = document.getElementById('announcementPreviewStatus');
+  const previewHint = document.getElementById('announcementPreviewHint');
+
+  if (!previewBar || !previewTrack || !previewStatus || !previewHint) return;
+
+  const text = typeof settings.text === 'string' ? settings.text.trim() : '';
+  const isActive = settings.active === true;
+  const link = typeof settings.link === 'string' ? settings.link.trim() : '';
+  const speedValue = Number(settings.speed);
+  const duration = Number.isFinite(speedValue) && speedValue > 0 ? speedValue : 18;
+
+  previewStatus.textContent = isActive ? 'Activa' : 'Inactiva';
+  previewStatus.classList.toggle('is-inactive', !isActive);
+
+  previewTrack.innerHTML = '';
+
+  if (!isActive || !text) {
+    previewBar.hidden = true;
+    previewHint.textContent = 'El ticker está inactivo o sin texto.';
+    return;
+  }
+
+  previewBar.hidden = false;
+  previewBar.style.setProperty('--ticker-duration', `${duration}s`);
+
+  const buildItem = (isClone = false) => {
+    const element = link ? document.createElement('a') : document.createElement('span');
+    element.className = link ? 'announcement-bar__link' : 'announcement-bar__text';
+    element.textContent = text;
+    if (link) {
+      element.href = link;
+      element.target = '_blank';
+      element.rel = 'noopener noreferrer';
+    }
+    if (isClone) {
+      element.setAttribute('aria-hidden', 'true');
+    }
+    return element;
+  };
+
+  previewTrack.appendChild(buildItem(false));
+  previewTrack.appendChild(buildItem(true));
+  previewHint.textContent = link ? 'El enlace se abrirá en una pestaña nueva.' : 'Sin link configurado.';
+}
+
+async function saveAnnouncementSettings(event) {
+  event.preventDefault();
+
+  const settings = getAnnouncementFormSettings();
+  if (!settings) return;
+
+  try {
+    const response = await fetch(ANNOUNCEMENT_API_UPDATE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(settings)
+    });
+
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+
+    localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, JSON.stringify(settings));
+    showNotification('✅ News Ticker actualizado correctamente');
+  } catch (error) {
+    console.error('No se pudo guardar el News Ticker', error);
+    localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, JSON.stringify(settings));
+    showNotification('⚠️ Guardado local, pero no se pudo sincronizar con el servidor', 'error');
+  }
 }
 
 

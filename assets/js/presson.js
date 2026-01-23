@@ -6,7 +6,7 @@ const SUPABASE_URL = window.SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || '';
 const API_BASE = '/.netlify/functions';
 
-function loadAnnouncementBar() {
+async function loadAnnouncementBar() {
   const bar = document.getElementById('announcementBar');
   const track = document.getElementById('announcementTrack');
   if (!bar || !track) return;
@@ -16,12 +16,7 @@ function loadAnnouncementBar() {
     root.style.setProperty('--announcement-bar-height', `${height}px`);
   };
 
-  let settings;
-  try {
-    settings = JSON.parse(localStorage.getItem(ANNOUNCEMENT_STORAGE_KEY) || '{}');
-  } catch (error) {
-    settings = {};
-  }
+  const settings = await fetchAnnouncementSettings();
 
   const text = typeof settings.text === 'string' ? settings.text.trim() : '';
   const isActive = settings.active === true;
@@ -59,6 +54,31 @@ function loadAnnouncementBar() {
   track.appendChild(buildItem(true));
   setAnnouncementOffset();
   window.addEventListener('resize', setAnnouncementOffset);
+}
+
+async function fetchAnnouncementSettings() {
+  try {
+    const response = await fetch(`${API_BASE}/announcement-get`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data && typeof data === 'object') {
+        localStorage.setItem(ANNOUNCEMENT_STORAGE_KEY, JSON.stringify(data));
+        return data;
+      }
+    }
+  } catch (error) {
+    console.warn('No se pudo cargar el News Ticker desde la API.', error);
+  }
+
+  try {
+    return JSON.parse(localStorage.getItem(ANNOUNCEMENT_STORAGE_KEY) || '{}');
+  } catch (error) {
+    return {};
+  }
 }
 
 loadAnnouncementBar();
