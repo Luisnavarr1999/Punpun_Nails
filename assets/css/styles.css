@@ -151,7 +151,7 @@ section[id]{ scroll-margin-top: calc(90px + var(--announcement-bar-height)); }
 /* Navbar sticky (evita hueco) */
 .navbar.fixed-top{
   position: sticky;
-  top: 0;
+  top: var(--announcement-bar-height);
   z-index: 1030;
   transition: background-color .2s ease, box-shadow .2s ease, backdrop-filter .2s ease;
 }
