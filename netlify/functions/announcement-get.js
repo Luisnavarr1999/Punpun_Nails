@@ -24,17 +24,25 @@ exports.handler = async (event) => {
   }
 
   try {
-    const response = await fetch(`${SUPABASE_URL}/rest/v1/announcement_settings?select=*&order=updated_at.desc&limit=1`, {
-      method: 'GET',
-      headers: {
-        apikey: SUPABASE_SERVICE_ROLE_KEY,
-        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/announcement_settings?select=*&order=updated_at.desc&limit=1`,
+      {
+        method: 'GET',
+        headers: {
+          apikey: SUPABASE_SERVICE_ROLE_KEY,
+          Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+          Accept: 'application/json'
+        }
       }
-    });
+    );
 
     if (!response.ok) {
       const errorBody = await response.text();
-      return { statusCode: response.status, headers, body: errorBody };
+      return {
+        statusCode: response.status,
+        headers,
+        body: JSON.stringify({ error: errorBody })
+      };
     }
 
     const data = await response.json();
