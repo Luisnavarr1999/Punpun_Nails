@@ -197,8 +197,20 @@
 
 @media (max-width: 768px){
   .catalog-grid{
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
+  .catalog-item-info{
+    padding: 12px;
+  }
+  .catalog-status{
+    font-size: 0.75rem;
+  }
+  .catalog-status i{
+    font-size: 0.9rem;
+  }
+  .catalog-price{
+    font-size: 1rem;
   }
   .pressOn-catalog{
     padding: 80px 0;

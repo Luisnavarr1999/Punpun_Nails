@@ -58,8 +58,26 @@ section[id]{ scroll-margin-top: 90px; }
 }
 
 @media (max-width: 575px){
+  :root {
+    font-size: 15px;
+  }
   .navbar-logo{
     height: 44px; /* antes 36px */
+  }
+  .display-4 {
+    font-size: 2.5rem !important;
+  }
+  h1 {
+    font-size: 2.5rem !important;
+  }
+  h2 {
+    font-size: 1.8rem !important;
+  }
+  h3 {
+    font-size: 1.5rem !important;
+  }
+  p, .lead {
+    font-size: 1.05rem !important;
   }
 }
 
