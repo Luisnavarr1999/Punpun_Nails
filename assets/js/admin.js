@@ -1,5 +1,4 @@
-// Key para almacenar datos en localStorage
-const STORAGE_KEY = 'pressOnProducts';
+const API_BASE = '/.netlify/functions';
 let editingProductId = null;
 
 // ==================== INICIALIZACIÓN ====================
@@ -152,8 +151,8 @@ function switchTab(tabName) {
 
 
 // ==================== PRODUCTOS ====================
-function loadProducts() {
-  const products = getProducts();
+async function loadProducts() {
+  const products = await getProducts();
   const grid = document.getElementById('productsGrid');
   const emptyState = document.getElementById('emptyState');
   const count = document.getElementById('productCount');
@@ -177,8 +176,8 @@ function loadProducts() {
 }
 
 // Filtrar productos por búsqueda
-function filterProducts(searchTerm) {
-  const products = getProducts();
+async function filterProducts(searchTerm) {
+  const products = await getProducts();
   const grid = document.getElementById('productsGrid');
   const searchLower = searchTerm.toLowerCase().trim();
 
@@ -238,7 +237,7 @@ function createProductCard(product) {
   return card;
 }
 
-function addProduct(e) {
+async function addProduct(e) {
   e.preventDefault();
 
   const name = document.getElementById('productName').value.trim();
@@ -252,9 +251,7 @@ function addProduct(e) {
     return;
   }
 
-  const products = getProducts();
   const newProduct = {
-    id: Date.now().toString(),
     name: name,
     description: description,
     price: price,
@@ -262,9 +259,13 @@ function addProduct(e) {
     available: document.getElementById('productAvailable').value === 'true'
   };
 
-  products.push(newProduct);
-  saveProducts(products);
-  loadProducts();
+  const created = await createProduct(newProduct);
+  if (!created) {
+    showNotification('❌ No se pudo crear el producto', 'error');
+    return;
+  }
+
+  await loadProducts();
 
   // Mostrar confirmación
   showNotification('✅ Producto agregado correctamente');
@@ -278,9 +279,9 @@ function addProduct(e) {
   switchTab('products');
 }
 
-function editProduct(id) {
+async function editProduct(id) {
   editingProductId = id;
-  const products = getProducts();
+  const products = await getProducts();
   const product = products.find(p => p.id === id);
 
   if (!product) return;
@@ -312,47 +313,51 @@ function closeEditModal() {
   editingProductId = null;
 }
 
-function saveProductChanges(e) {
+async function saveProductChanges(e) {
   e.preventDefault();
 
   if (!editingProductId) return;
 
-  const products = getProducts();
-  const product = products.find(p => p.id === editingProductId);
-
-  if (!product) return;
-
-  product.name = document.getElementById('editProductName').value;
-  product.description = document.getElementById('editProductDescription').value;
-  product.price = document.getElementById('editProductPrice').value;
-  product.available = document.getElementById('editProductAvailable').value === 'true';
+  const payload = {
+    name: document.getElementById('editProductName').value,
+    description: document.getElementById('editProductDescription').value,
+    price: document.getElementById('editProductPrice').value,
+    available: document.getElementById('editProductAvailable').value === 'true'
+  };
   
   // Usar la imagen cargada o mantener la actual
   if (window.editImageData) {
-    product.image = window.editImageData;
+    payload.image = window.editImageData;
   }
 
-  saveProducts(products);
-  loadProducts();
+  const updated = await updateProduct(editingProductId, payload);
+  if (!updated) {
+    showNotification('❌ No se pudo actualizar el producto', 'error');
+    return;
+  }
+
+  await loadProducts();
 
   showNotification('✅ Producto actualizado correctamente');
   closeEditModal();
 }
 
-function deleteProduct(id) {
+async function deleteProduct(id) {
   if (!confirm('¿Estás seguro que quieres eliminar este producto?')) {
     return;
   }
 
-  let products = getProducts();
-  products = products.filter(p => p.id !== id);
-  saveProducts(products);
-  loadProducts();
+  const deleted = await deleteProductById(id);
+  if (!deleted) {
+    showNotification('❌ No se pudo eliminar el producto', 'error');
+    return;
+  }
+  await loadProducts();
 
   showNotification('✅ Producto eliminado');
 }
 
-function clearAllProducts() {
+async function clearAllProducts() {
   if (!confirm('⚠️ ¿Eliminar TODOS los productos? Esta acción NO se puede deshacer.')) {
     return;
   }
@@ -361,8 +366,9 @@ function clearAllProducts() {
     return;
   }
 
-  saveProducts([]);
-  loadProducts();
+  const products = await getProducts();
+  await Promise.all(products.map(product => deleteProductById(product.id)));
+  await loadProducts();
   showNotification('✅ Todos los productos fueron eliminados');
 }
 
@@ -479,13 +485,87 @@ function handleEditImageUpload(e) {
 
   reader.readAsDataURL(file);
 }
-function getProducts() {
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : [];
+function getApiHeaders() {
+  return {
+    'Content-Type': 'application/json'
+  };
 }
 
-function saveProducts(products) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+async function getProducts() {
+  try {
+    const response = await fetch(`${API_BASE}/products-list`, {
+      method: 'GET',
+      headers: getApiHeaders()
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al cargar productos');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    showNotification('❌ No se pudieron cargar los productos', 'error');
+    return [];
+  }
+}
+
+async function createProduct(product) {
+  try {
+    const response = await fetch(`${API_BASE}/products-create`, {
+      method: 'POST',
+      headers: getApiHeaders(),
+      body: JSON.stringify(product)
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al crear producto');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+async function updateProduct(id, updates) {
+  try {
+    const response = await fetch(`${API_BASE}/products-update?id=${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      headers: getApiHeaders(),
+      body: JSON.stringify(updates)
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al actualizar producto');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+}
+
+async function deleteProductById(id) {
+  try {
+    const response = await fetch(`${API_BASE}/products-delete?id=${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: getApiHeaders()
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al eliminar producto');
+    }
+
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
 }
 
 function updatePreview() {
@@ -567,53 +647,6 @@ function showNotification(message, type = 'success') {
     setTimeout(() => notification.remove(), 300);
   }, 3000);
 }
-
-// ==================== DATOS DE EJEMPLO ====================
-// Cargar datos de ejemplo si no hay productos
-window.addEventListener('load', () => {
-  const products = getProducts();
-  
-  if (products.length === 0 && localStorage.getItem('firstLoad') !== 'done') {
-    const exampleProducts = [
-      {
-        id: '1',
-        name: 'Press On Clásico',
-        description: 'Set elegante con diseño clásico y acabado brillante. Duración: 2-3 semanas.',
-        price: '$25.000',
-        image: 'assets/img/press_on/press_on1.png',
-        available: true
-      },
-      {
-        id: '2',
-        name: 'Press On Floral',
-        description: 'Set con diseño floral delicado. Perfecto para ocasiones especiales. Duración: 2-3 semanas.',
-        price: '$25.000',
-        image: 'assets/img/press_on/press_on2.png',
-        available: true
-      },
-      {
-        id: '3',
-        name: 'Press On Nude',
-        description: 'Set neutro versátil para cualquier ocasión. Acabado mate y brillante. Duración: 2-3 semanas.',
-        price: '$25.000',
-        image: 'assets/img/press_on/press_on3.png',
-        available: true
-      },
-      {
-        id: '4',
-        name: 'Press On Glam',
-        description: 'Set premium con brillos y diseño elegante. Para las que quieren llamar la atención. Duración: 2-3 semanas.',
-        price: '$25.000',
-        image: 'assets/img/press_on/press_on4.png',
-        available: true
-      }
-    ];
-
-    saveProducts(exampleProducts);
-    localStorage.setItem('firstLoad', 'done');
-    loadProducts();
-  }
-});
 
 // ==================== CERRAR MODAL ====================
 window.addEventListener('click', (e) => {

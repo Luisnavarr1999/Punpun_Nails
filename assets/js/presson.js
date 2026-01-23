@@ -1,65 +1,55 @@
 // Actualizar año en footer
 document.getElementById('year').textContent = new Date().getFullYear();
 
-// Key para almacenar datos en localStorage
-const STORAGE_KEY = 'pressOnProducts';
+const SUPABASE_URL = window.SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || '';
 
-// Obtener productos del localStorage
-function getProductsFromStorage() {
-  const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : [];
+function getSupabaseHeaders() {
+  return {
+    apikey: SUPABASE_ANON_KEY,
+    Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    'Content-Type': 'application/json'
+  };
+}
+
+async function fetchCatalogProducts() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    console.warn('Supabase no está configurado. Define SUPABASE_URL y SUPABASE_ANON_KEY en el frontend.');
+    return [];
+  }
+
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/products?select=*`, {
+      method: 'GET',
+      headers: getSupabaseHeaders()
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al cargar productos desde Supabase');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 }
 
 // Cargar productos del catálogo
-function loadCatalogProducts() {
-  const products = getProductsFromStorage();
+async function loadCatalogProducts() {
+  const products = await fetchCatalogProducts();
   const grid = document.querySelector('.catalog-grid');
 
   if (!grid) return; // Si no está en press-on.html, salir
 
   grid.innerHTML = ''; // Limpiar grid
 
-  // Si no hay productos en localStorage, usar productos por defecto
   if (products.length === 0) {
-    const defaultProducts = [
-      {
-        id: '1',
-        name: 'Press On Clásico',
-        description: 'Set elegante con diseño clásico y acabado brillante. Duración: 2-3 semanas.',
-        price: '$25.000',
-        image: 'assets/img/press_on/press_on1.png',
-        available: true
-      },
-      {
-        id: '2',
-        name: 'Press On Floral',
-        description: 'Set con diseño floral delicado. Perfecto para ocasiones especiales. Duración: 2-3 semanas.',
-        price: '$25.000',
-        image: 'assets/img/press_on/press_on2.png',
-        available: true
-      },
-      {
-        id: '3',
-        name: 'Press On Nude',
-        description: 'Set neutro versátil para cualquier ocasión. Acabado mate y brillante. Duración: 2-3 semanas.',
-        price: '$25.000',
-        image: 'assets/img/press_on/press_on3.png',
-        available: true
-      },
-      {
-        id: '4',
-        name: 'Press On Glam',
-        description: 'Set premium con brillos y diseño elegante. Para las que quieren llamar la atención. Duración: 2-3 semanas.',
-        price: '$25.000',
-        image: 'assets/img/press_on/press_on4.png',
-        available: true
-      }
-    ];
-
-    renderProducts(defaultProducts);
-  } else {
-    renderProducts(products);
+    grid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #999;">No hay productos disponibles</div>';
+    return;
   }
+
+  renderProducts(products);
 }
 
 // Renderizar productos en el grid
@@ -176,12 +166,11 @@ function setupCatalogEventListeners() {
 }
 
 // Cargar productos cuando el DOM está listo
-document.addEventListener('DOMContentLoaded', () => {
-  loadCatalogProducts();
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadCatalogProducts();
   updateCatalogStatus();
 });
 
 // También cargar inmediatamente por si el script va al final
-loadCatalogProducts();
-updateCatalogStatus();
+loadCatalogProducts().then(updateCatalogStatus);
 
