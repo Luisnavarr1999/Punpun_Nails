@@ -1,4 +1,5 @@
 const API_BASE = '/.netlify/functions';
+const ANNOUNCEMENT_STORAGE_KEY = 'announcementSettings';
 let editingProductId = null;
 
 // ==================== INICIALIZACIÓN ====================
@@ -11,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Cargar productos
   loadProducts();
+
+  loadAnnouncementSettings();
 
   // Event listeners - con delay para asegurar que el DOM esté listo
   setTimeout(() => {
@@ -65,6 +68,11 @@ function setupEventListeners() {
   const passwordForm = document.getElementById('passwordForm');
   if (passwordForm) {
     passwordForm.addEventListener('submit', changePassword);
+  }
+
+  const announcementForm = document.getElementById('announcementForm');
+  if (announcementForm) {
+    announcementForm.addEventListener('submit', saveAnnouncementSettings);
   }
 
   // Editar producto
